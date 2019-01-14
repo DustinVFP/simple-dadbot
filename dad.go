@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 	"github.com/andersfylling/disgord"
+	"encoding/json"
+	"io/ioutil"
 )
 
 var (
@@ -14,9 +16,41 @@ var (
 func init() {
 	// configuration
 	
-	conf_Token = "NTE2OTQwOTQzMTE1NDE5NjQ4.Duz04g.cGriVLkZNRPGxSmsICG2hRfdz7k"
-	dadtype = "dad"
+	setupConf()
 
+}
+
+type lowconf struct {
+	Token	string
+	Dad		string
+}
+
+func setupConf() {
+	_error := false
+	file, err := ioutil.ReadFile("./config.json")
+	if err != nil {
+		_error = true
+		fmt.Println("Failed to read core config")
+		fmt.Println(err.Error())
+	}
+	var data lowconf
+
+	err = json.Unmarshal([]byte(file),&data)
+	if err != nil {
+		_error = true
+		fmt.Println("Failed to read core config")
+		fmt.Println(err.Error())
+	}
+
+	conf_Token = data.Token
+	dadtype = data.Dad
+
+	if !_error {
+		fmt.Println("Loaded Config")
+	} else {
+		fmt.Println("Core Config Failed to load")
+		panic(err)
+	}
 }
 
 func messageDo(session disgord.Session, data *disgord.MessageCreate) {
